@@ -90,16 +90,16 @@ export const POST = createAstroSaveRoute({
 
 `@verevoir/admin` is fully themable via CSS custom properties. Override any of these on `:root` or the `.verevoir-admin` selector:
 
-| Variable | Default | What it controls |
-|---|---|---|
-| `--admin-bg` | `#f8fafc` | Page background |
-| `--admin-surface` | `#ffffff` | Cards, forms |
-| `--admin-text` | `#0f172a` | Body text |
-| `--admin-text-muted` | `#64748b` | Secondary text |
-| `--admin-accent` | `#ffae9c` | Buttons, focus rings |
-| `--admin-radius` | `0.375rem` | Border radius |
-| `--admin-font` | `Mulish, system-ui, ...` | Font family |
-| `--admin-content-width` | `64rem` | Max content width |
+| Variable                | Default                  | What it controls     |
+| ----------------------- | ------------------------ | -------------------- |
+| `--admin-bg`            | `#f8fafc`                | Page background      |
+| `--admin-surface`       | `#ffffff`                | Cards, forms         |
+| `--admin-text`          | `#0f172a`                | Body text            |
+| `--admin-text-muted`    | `#64748b`                | Secondary text       |
+| `--admin-accent`        | `#ffae9c`                | Buttons, focus rings |
+| `--admin-radius`        | `0.375rem`               | Border radius        |
+| `--admin-font`          | `Mulish, system-ui, ...` | Font family          |
+| `--admin-content-width` | `64rem`                  | Max content width    |
 
 The full list is in [`src/styles/admin.css`](src/styles/admin.css).
 

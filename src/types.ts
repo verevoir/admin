@@ -22,6 +22,17 @@ export interface BlockEntry {
    */
   singleton?: boolean;
   /**
+   * Optional grouping label for the sidebar. Block types with the
+   * same category are visually grouped together. The two conventional
+   * categories are `'content'` (page-like documents with public URLs)
+   * and `'config'` (singletons, settings, theme). Any string is
+   * allowed; the sidebar renders categories in the order they first
+   * appear in the registry.
+   *
+   * If omitted, the block falls into a default "Other" category.
+   */
+  category?: string;
+  /**
    * Function returning the public URL for a document of this block
    * type. When set, the editor for this block shows a live preview
    * iframe pointing at the URL.
@@ -43,6 +54,13 @@ export interface SectionEntry {
   label: string;
   /** Block definition for this section type's fields */
   block: BlockDefinition<FieldRecord>;
+  /**
+   * URL of an icon shown to the left of the type label in both the
+   * section list and the picker. Designed for ~2:1 SVG glyphs that
+   * read well on the editor surface — anything else is fair game,
+   * the admin renders it inside an `<img>` with `alt=""` (decorative).
+   */
+  iconSrc?: string;
 }
 
 /**
@@ -99,6 +117,31 @@ export type UsersContainer = ComponentType<UsersContainerProps>;
  * blockType string.
  */
 export type BlockRegistry = Record<string, BlockEntry>;
+
+/**
+ * One block type's slice of the admin home page — a fully
+ * serialisable view model used by the sidebar and document list.
+ *
+ * Loaded on the server (see `@verevoir/admin/server`
+ * `loadAdminGroups`) and passed into `<AdminProvider groups={...}>`.
+ *
+ * Intentionally does **not** include the raw `BlockEntry`: that
+ * holds class instances and functions (`preview`, field schemas)
+ * which don't survive a hydration boundary. The editor route still
+ * passes the full `BlockDefinition` to `DocumentEditor` directly.
+ */
+export interface AdminGroup {
+  /** Block type discriminator (registry key). */
+  blockType: string;
+  /** Display label — `entry.label ?? entry.block.name`. */
+  label: string;
+  /** Singleton block types collapse to a single doc in the sidebar. */
+  singleton: boolean;
+  /** Optional sidebar category — see `BlockEntry.category`. */
+  category?: string;
+  /** Documents currently stored for this block type. */
+  documents: Document[];
+}
 
 /**
  * Configuration for the admin. Passed to the `<Admin>` umbrella

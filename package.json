@@ -1,6 +1,6 @@
 {
   "name": "@verevoir/admin",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "license": "MIT",
   "description": "Composable building blocks for a Verevoir-powered admin site — shell, editor, list, with first-class slots for versioning, preview, and user management.",
   "homepage": "https://verevoir.io",
@@ -18,6 +18,11 @@
       "types": "./dist/astro/index.d.ts",
       "import": "./dist/astro/index.js",
       "require": "./dist/astro/index.cjs"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js",
+      "require": "./dist/server/index.cjs"
     },
     "./styles/*": "./dist/styles/*"
   },
@@ -38,8 +43,8 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@verevoir/editor": "^1.5.0",
-    "@verevoir/schema": "^1.4.0",
+    "@verevoir/editor": "file:../editor",
+    "@verevoir/schema": "file:../schema-engine",
     "@verevoir/storage": "^1.1.0"
   },
   "peerDependencies": {

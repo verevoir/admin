@@ -12,8 +12,9 @@ export interface AdminShellProps {
    * header is clicked. Default: `/admin`.
    */
   homePath?: string;
-  /** Title shown in the header */
-  title?: string;
+  /** Title or logo shown in the header. Pass a string for text,
+   * or a ReactNode (e.g. `<img>` or inline SVG) for a logo. */
+  title?: ReactNode;
   /** Breadcrumbs shown after the title */
   breadcrumbs?: BreadcrumbCrumb[];
   /** Currently signed-in user, shown in the header right side */
@@ -30,6 +31,17 @@ export interface AdminShellProps {
    * identity and nav. Use for actions like "View site →".
    */
   headerActions?: ReactNode;
+  /**
+   * Optional sidebar slot rendered to the left of the main content.
+   * Typically `<AdminSidebar />`, but the slot is generic — anything
+   * you pass shows up there. When omitted, the body fills the
+   * available width as before.
+   *
+   * The shell expects the sidebar to manage its own collapse/expand
+   * state via the preferences provider, so the layout doesn't need
+   * to know whether the sidebar is currently open.
+   */
+  sidebar?: ReactNode;
   children: ReactNode;
 }
 
@@ -58,6 +70,7 @@ export function AdminShell({
   navLinks,
   wide = false,
   headerActions,
+  sidebar,
   children,
 }: AdminShellProps) {
   return (
@@ -65,6 +78,7 @@ export function AdminShell({
       className="verevoir-admin"
       data-admin-shell
       data-admin-wide={wide ? 'true' : undefined}
+      data-admin-has-sidebar={sidebar ? 'true' : undefined}
     >
       <header data-admin-header>
         <div data-admin-header-inner>
@@ -121,7 +135,10 @@ export function AdminShell({
         </div>
       </header>
 
-      <main data-admin-main>{children}</main>
+      <div data-admin-body>
+        {sidebar && <div data-admin-sidebar-slot>{sidebar}</div>}
+        <main data-admin-main>{children}</main>
+      </div>
     </div>
   );
 }

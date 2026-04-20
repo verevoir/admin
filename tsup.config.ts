@@ -2,7 +2,7 @@ import { defineConfig } from 'tsup';
 import { cp } from 'node:fs/promises';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/astro/index.ts'],
+  entry: ['src/index.ts', 'src/astro/index.ts', 'src/server/index.ts'],
   outExtension({ format }) {
     return { js: format === 'cjs' ? '.cjs' : '.js' };
   },
