@@ -23,6 +23,12 @@ export type { AdminSidebarProps } from './components/AdminSidebar.js';
 export { SectionsEditor } from './components/SectionsEditor.js';
 export type { SectionsEditorProps } from './components/SectionsEditor.js';
 
+export { TagList } from './components/TagList.js';
+export type { TagListProps } from './components/TagList.js';
+
+export { TagScheduler } from './components/TagScheduler.js';
+export type { TagSchedulerProps } from './components/TagScheduler.js';
+
 // Context + hooks
 export {
   AdminProvider,
