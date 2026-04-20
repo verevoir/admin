@@ -21,7 +21,7 @@
   --admin-text-muted: #64748b;
   --admin-text-strong: #020617;
 
-  --admin-accent: #ffae9c;
+  --admin-accent: #7e8ec8;
   --admin-accent-text: #171227;
   --admin-accent-strong: #f08e7a;
 
@@ -39,6 +39,8 @@
 
   --admin-content-width: 64rem;
   --admin-side-pane-width: 32rem;
+  --admin-sidebar-width: 17rem;
+  --admin-sidebar-collapsed-width: 2.25rem;
 
   font-family: var(--admin-font);
   color: var(--admin-text);
@@ -88,7 +90,7 @@
 
 .verevoir-admin [data-admin-header-left] {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 0.625rem;
   min-width: 0;
   flex: 1;
@@ -183,11 +185,25 @@
   margin-top: 0.125rem;
 }
 
+.verevoir-admin [data-admin-body] {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
 .verevoir-admin [data-admin-main] {
   max-width: var(--admin-content-width);
   margin: 0 auto;
   padding: 2rem 1.5rem;
   width: 100%;
+}
+
+.verevoir-admin[data-admin-has-sidebar='true'] [data-admin-main] {
+  max-width: none;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .verevoir-admin[data-admin-wide='true'] [data-admin-main] {
@@ -196,6 +212,287 @@
   padding: 0;
   overflow: hidden;
   display: flex;
+}
+
+/* --- Sidebar slot ----------------------------------------------------- */
+
+.verevoir-admin [data-admin-sidebar-slot] {
+  flex-shrink: 0;
+  border-right: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  display: flex;
+  flex-direction: column;
+}
+
+.verevoir-admin [data-admin-sidebar] {
+  display: flex;
+  flex-direction: column;
+  width: var(--admin-sidebar-width);
+  height: 100%;
+  transition: width 0.15s ease;
+  overflow: hidden;
+}
+
+.verevoir-admin [data-admin-sidebar][data-admin-sidebar-open='false'] {
+  width: var(--admin-sidebar-collapsed-width);
+}
+
+.verevoir-admin [data-admin-sidebar-header] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.625rem 0.5rem;
+  border-bottom: 1px solid var(--admin-border);
+  flex-shrink: 0;
+}
+
+.verevoir-admin [data-admin-sidebar-toggle] {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-bg);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.verevoir-admin [data-admin-sidebar-toggle]:hover {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+}
+
+.verevoir-admin [data-admin-sidebar-search] {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.verevoir-admin [data-admin-sidebar-search-input] {
+  width: 100%;
+  padding: 0.375rem 1.75rem 0.375rem 0.625rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  font: inherit;
+  font-size: 0.8125rem;
+}
+
+.verevoir-admin [data-admin-sidebar-search-input]:focus {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: -1px;
+  border-color: var(--admin-accent);
+}
+
+.verevoir-admin [data-admin-sidebar-search-clear] {
+  position: absolute;
+  right: 0.375rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.125rem;
+  height: 1.125rem;
+  border: none;
+  background: var(--admin-border);
+  border-radius: 999px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1;
+  color: var(--admin-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.verevoir-admin [data-admin-sidebar-search-clear]:hover {
+  background: var(--admin-border-strong);
+}
+
+.verevoir-admin [data-admin-sidebar-nav] {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0.25rem 1rem;
+}
+
+.verevoir-admin [data-admin-sidebar-empty] {
+  padding: 1rem 0.75rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--admin-text-muted);
+  font-style: italic;
+}
+
+.verevoir-admin [data-admin-sidebar-category] {
+  margin-bottom: 0.5rem;
+}
+
+.verevoir-admin [data-admin-sidebar-category] + [data-admin-sidebar-category] {
+  border-top: 1px solid var(--admin-border);
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.verevoir-admin [data-admin-sidebar-category-title] {
+  margin: 0.5rem 0.75rem 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--admin-text-muted);
+}
+
+.verevoir-admin [data-admin-sidebar-types] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.verevoir-admin [data-admin-sidebar-type] {
+  margin: 0;
+}
+
+.verevoir-admin [data-admin-sidebar-type-toggle] {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: none;
+  border: none;
+  padding: 0.375rem 0.625rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--admin-text);
+  text-align: left;
+  border-radius: var(--admin-radius);
+}
+
+.verevoir-admin [data-admin-sidebar-type-toggle]:hover {
+  background: var(--admin-bg);
+}
+
+.verevoir-admin [data-admin-sidebar-type-caret] {
+  font-size: 0.625rem;
+  color: var(--admin-text-muted);
+  width: 0.75rem;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.verevoir-admin [data-admin-sidebar-type-label] {
+  flex: 1;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.verevoir-admin [data-admin-sidebar-type-count] {
+  font-size: 0.6875rem;
+  color: var(--admin-text-muted);
+  font-variant-numeric: tabular-nums;
+  background: var(--admin-bg);
+  border-radius: 999px;
+  padding: 0.0625rem 0.4375rem;
+  flex-shrink: 0;
+}
+
+.verevoir-admin [data-admin-sidebar-docs] {
+  list-style: none;
+  margin: 0 0 0.25rem 1.25rem;
+  padding: 0;
+  border-left: 1px solid var(--admin-border);
+}
+
+.verevoir-admin [data-admin-sidebar-doc] {
+  margin: 0;
+}
+
+.verevoir-admin [data-admin-sidebar-doc-link] {
+  display: block;
+  padding: 0.3125rem 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--admin-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: var(--admin-radius);
+}
+
+.verevoir-admin [data-admin-sidebar-doc-link]:hover {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+.verevoir-admin [data-admin-sidebar-doc-link][data-current='true'] {
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+  font-weight: 500;
+}
+
+.verevoir-admin [data-admin-sidebar-doc-empty] {
+  margin: 0 0 0.25rem 1.625rem;
+  padding: 0.25rem 0;
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  font-style: italic;
+}
+
+.verevoir-admin [data-admin-sidebar-singleton-link] {
+  display: block;
+  padding: 0.375rem 0.625rem 0.375rem 1.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--admin-text);
+  text-decoration: none;
+  border-radius: var(--admin-radius);
+}
+
+.verevoir-admin [data-admin-sidebar-singleton-link]:hover {
+  background: var(--admin-bg);
+}
+
+.verevoir-admin [data-admin-sidebar-singleton-link][data-current='true'] {
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+}
+
+/* --- DocumentList empty/filter state --------------------------------- */
+
+.verevoir-admin [data-document-list-empty-state] {
+  padding: 2rem;
+  border: 2px dashed var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  text-align: center;
+  color: var(--admin-text-muted);
+}
+
+.verevoir-admin [data-document-list-clear-filter] {
+  margin-top: 0.75rem;
+  padding: 0.375rem 0.875rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--admin-text);
+}
+
+.verevoir-admin [data-document-list-clear-filter]:hover {
+  background: var(--admin-bg);
+  border-color: var(--admin-border-strong);
 }
 
 /* --- DocumentList ----------------------------------------------------- */
@@ -261,18 +558,136 @@
 
 .verevoir-admin [data-document-editor] {
   background: var(--admin-surface);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  /* Without min-width: 0 the editor's flex children (esp. the
+     preview iframe) can drag the editor wider than its parent,
+     which then makes any %-based column width compute against
+     the inflated size and varies per tab. */
+  min-width: 0;
+}
+
+/* Contentless mode: single-column form, padding around the body */
+.verevoir-admin
+  [data-document-editor][data-document-editor-mode='contentless'] {
+  padding: 1.5rem;
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-radius-lg);
-  padding: 1.5rem;
   box-shadow: var(--admin-shadow);
+  flex: none;
 }
 
-.verevoir-admin [data-document-editor-section] {
-  margin-bottom: 2rem;
+/* Tabbed mode: tabs strip + full-bleed two-column body */
+.verevoir-admin [data-document-editor][data-document-editor-mode='tabbed'] {
+  border: none;
+  background: var(--admin-bg);
 }
 
-.verevoir-admin [data-document-editor-section-title] {
-  margin: 0 0 1rem;
+/* --- Tab strip ---- */
+.verevoir-admin [data-document-editor-tabs] {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.625rem 1rem;
+  background: var(--admin-surface);
+  border-bottom: 1px solid var(--admin-border);
+  flex-shrink: 0;
+}
+
+.verevoir-admin [data-document-editor-tab] {
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--admin-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+}
+
+.verevoir-admin [data-document-editor-tab]:hover {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+.verevoir-admin [data-document-editor-tab][data-active='true'] {
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+  font-weight: 600;
+}
+
+.verevoir-admin [data-document-editor-tab-spacer] {
+  flex: 1;
+}
+
+/* --- Two-column tab body ---- */
+.verevoir-admin [data-document-editor-tab-body] {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.verevoir-admin [data-document-editor-col] {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.verevoir-admin [data-document-editor-col][data-col='left'] {
+  /* Fixed-pixel width so all three tabs render the same column
+     width regardless of inner content's intrinsic size — the
+     preview pane on the right stays put as you switch tabs. */
+  flex: 0 0 500px;
+  max-width: 500px;
+  border-right: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+}
+
+.verevoir-admin [data-document-editor-col][data-col='right'] {
+  background: var(--admin-bg);
+}
+
+/* When the right column hosts the preview iframe (or the
+   no-preview placeholder), drop the padding so the iframe goes
+   edge-to-edge. Marked with `data-preview` rather than per-tab
+   so any tab can opt in without touching this rule. */
+.verevoir-admin [data-document-editor-col][data-col='right'][data-preview] {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.verevoir-admin [data-document-editor-tab-body] [data-preview-frame] {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.verevoir-admin [data-document-editor-no-preview] {
+  margin: 0;
+  padding: 2rem;
+  text-align: center;
+  color: var(--admin-text-muted);
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+.verevoir-admin [data-document-editor-versions-stub] {
+  padding: 1rem 1.25rem;
+  border: 2px dashed var(--admin-border);
+  border-radius: var(--admin-radius-lg);
+  background: var(--admin-surface);
+}
+
+.verevoir-admin [data-document-editor-versions-stub] h3 {
+  margin: 0 0 0.5rem;
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -280,16 +695,36 @@
   color: var(--admin-text-muted);
 }
 
-.verevoir-admin [data-document-editor-versions] {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--admin-border);
+.verevoir-admin [data-document-editor-versions-stub] p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--admin-text-muted);
+  line-height: 1.5;
 }
 
+.verevoir-admin [data-document-editor-versions-stub] code {
+  background: var(--admin-bg);
+  padding: 0.0625rem 0.25rem;
+  border-radius: var(--admin-radius);
+  font-family: var(--admin-font-mono);
+  font-size: 0.8125rem;
+}
+
+/* --- Save bar (lives inside the tab strip in tabbed mode, at
+   the bottom of the form in contentless mode) ---- */
 .verevoir-admin [data-document-editor-actions] {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+}
+
+.verevoir-admin
+  [data-document-editor][data-document-editor-mode='contentless']
+  [data-document-editor-actions],
+.verevoir-admin
+  [data-document-editor-tab-body]
+  [data-document-editor-col][data-col='left']
+  [data-document-editor-actions] {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
   border-top: 1px solid var(--admin-border);
@@ -330,21 +765,186 @@
   color: var(--admin-error);
 }
 
-/* --- Form inputs (delegated to @verevoir/editor markup) --------------- */
+/* --- Field shell (fieldset+legend pattern from @verevoir/editor) ----- */
 
-.verevoir-admin [data-document-editor] label {
-  display: block;
-  font-size: 0.875rem;
+/* The compact label sits in the top-left of the fieldset border, the
+   input takes the full width inside. The visually hidden <label> is
+   purely for testing-library / screen-reader assistance. */
+
+.verevoir-admin [data-field] {
+  position: relative;
+  margin: 0 0 0.875rem;
+  padding: 0.25rem 0.5rem 0.25rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  background: var(--admin-surface);
+  /* Fieldsets default to `min-width: min-content`, which lets a long
+     unbroken inner string (e.g. a testimonial quote with nowrap) push
+     the fieldset wider than its column. Force shrink-to-fit so the
+     inner ellipsis machinery can do its job. */
+  min-width: 0;
+}
+
+.verevoir-admin [data-field]:focus-within {
+  border-color: var(--admin-accent);
+  box-shadow: 0 0 0 1px var(--admin-accent);
+}
+
+.verevoir-admin [data-field-label] {
+  padding: 0 0.375rem;
+  margin-left: -0.25rem;
+  font-size: 0.6875rem;
   font-weight: 600;
-  margin-bottom: 0.375rem;
-  margin-top: 1rem;
+  letter-spacing: 0.05em;
+  color: var(--admin-text-muted);
+}
+
+.verevoir-admin [data-field]:focus-within [data-field-label] {
+  color: var(--admin-accent-strong);
+}
+
+/* Visually hide the screen-reader label — it lives next to the
+   legend purely so getByLabelText() and assistive tech find an
+   explicit input association. */
+.verevoir-admin [data-field-sr-label] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.verevoir-admin [data-field-body] {
+  /* The legend's text starts at `field padding-inline-start`
+     (-0.25rem margin) + 0.375rem padding = 0.125rem to the right
+     of the field's content edge. Push the body in by the same
+     amount so input text starts directly under the label. */
+  padding-inline-start: 0.125rem;
+}
+
+/* Nested fields (depth > 0) drop the border and use a left rule
+   instead, so a tree of nested objects doesn't read as a stack of
+   boxes. */
+.verevoir-admin [data-field][data-field-nested='true'] {
+  padding: 0.25rem 0 0.25rem 0.875rem;
+  margin: 0 0 0.5rem;
+  border: none;
+  border-left: 2px solid var(--admin-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.verevoir-admin [data-field][data-field-nested='true']:focus-within {
+  border-color: transparent;
+  border-left-color: var(--admin-accent);
+  box-shadow: none;
+}
+
+/* Bare mode (boolean): no border, no padding, just the inline
+   checkbox + text. */
+.verevoir-admin [data-field][data-field-bare='true'] {
+  border: none;
+  background: transparent;
+  padding: 0.375rem 0;
+  margin: 0 0 0.5rem;
+  box-shadow: none;
+}
+
+.verevoir-admin [data-field][data-field-bare='true']:focus-within {
+  box-shadow: none;
+}
+
+.verevoir-admin [data-boolean-label] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
   color: var(--admin-text);
 }
 
-.verevoir-admin [data-document-editor] section label:first-child,
-.verevoir-admin [data-document-editor] [data-field]:first-child label {
-  margin-top: 0;
+/* --- Help icon + popover ---- */
+
+.verevoir-admin [data-field-help-wrapper] {
+  position: absolute;
+  /* `top: 0` would put the button at the fieldset's padding-edge
+     top, which is below the border line. The legend's text optical
+     centre sits *above* the border (cap-height/2 above), so we lift
+     the button past the border to line up with it. */
+  top: -0.5rem;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: inline-flex;
 }
+
+/* Mask the field's top border immediately behind the button so the
+   border doesn't run through it — same visual treatment the legend
+   gets natively from the browser. The bar matches the page bg, sits
+   on the border line, and is slightly wider than the button.
+   Themes that paint a glass / gradient page bg should override
+   `background` to something opaque that blends with their surface
+   (a transparent value here would leave the border visible).
+   No `z-index: -1` — that would put the bar behind the parent
+   field's border decoration, defeating the masking. Natural DOM
+   order keeps the bar above the border and the button above the
+   bar (button is a sibling rendered after `::before`). */
+.verevoir-admin [data-field-help-wrapper]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  right: -1px;
+  height: 3px;
+  transform: translateY(-50%);
+  background: var(--admin-bg);
+}
+
+.verevoir-admin [data-field-help-button] {
+  width: 0.95rem;
+  height: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font: inherit;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--admin-text-muted);
+  background: var(--admin-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.verevoir-admin [data-field-help-button]:hover,
+.verevoir-admin [data-field-help-button][aria-expanded='true'] {
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+  border-color: var(--admin-accent);
+}
+
+.verevoir-admin [data-field-help-popover] {
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  right: 0;
+  z-index: 10;
+  width: 16rem;
+  padding: 0.625rem 0.75rem;
+  background: var(--admin-text-strong);
+  color: var(--admin-surface);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow-lg);
+}
+
+/* --- Form inputs ---- */
 
 .verevoir-admin [data-document-editor] input[type='text'],
 .verevoir-admin [data-document-editor] input[type='number'],
@@ -355,80 +955,558 @@
 .verevoir-admin [data-document-editor] select {
   display: block;
   width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--admin-border);
-  border-radius: var(--admin-radius);
-  background: var(--admin-surface);
+  padding: 0.25rem 0;
+  border: none;
+  background: transparent;
   color: var(--admin-text);
   font: inherit;
   font-size: 0.9375rem;
+  outline: none;
 }
 
 .verevoir-admin [data-document-editor] textarea {
-  min-height: 6rem;
+  min-height: 4rem;
   resize: vertical;
 }
 
-.verevoir-admin [data-document-editor] input:focus,
-.verevoir-admin [data-document-editor] textarea:focus,
-.verevoir-admin [data-document-editor] select:focus {
-  outline: 2px solid var(--admin-accent);
-  outline-offset: -1px;
+/* Native <select> options are rendered by the OS using its own panel.
+   The select inherits the page text colour (often white in dark
+   themes), which makes the options invisible against the OS panel's
+   light background. Force a readable colour on the options. */
+.verevoir-admin [data-document-editor] select option {
+  color: #0f172a;
+  background: #ffffff;
+}
+
+/* --- Rich text toolbar ----
+   The toolbar floats in the top-right of the rich-text area as a
+   compact strip — out of the way of the writing surface, picking up
+   the rest of the field's border colour and text colour so it blends
+   with whatever theme the consumer applies. */
+
+.verevoir-admin [data-rich-text] {
+  position: relative;
+}
+
+.verevoir-admin [data-rich-text-toolbar] {
+  position: absolute;
+  /* Pulled up so the row sits on / above the content's top edge.
+     The right offset clears the field's help-button slot
+     (`top-right` of the fieldset, ~0.95rem wide + 0.5rem inset) so
+     the two never overlap. */
+  top: -0.625rem;
+  right: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0;
+  background: transparent;
+  z-index: 1;
+}
+
+.verevoir-admin [data-rich-text-toolbar] button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  color: var(--admin-text);
+  font: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.verevoir-admin [data-rich-text-toolbar] button:hover {
+  background: var(--admin-surface-raised);
+  border-color: var(--admin-border-strong);
+  color: var(--admin-text-strong);
+}
+
+.verevoir-admin [data-rich-text-toolbar] button[data-active] {
+  background: var(--admin-accent);
   border-color: var(--admin-accent);
+  color: var(--admin-accent-text);
+}
+
+.verevoir-admin [data-rich-text-separator] {
+  width: 1px;
+  height: 0.875rem;
+  background: var(--admin-border);
+  margin: 0 0.125rem;
+}
+
+/* The contentEditable surface — keep top padding generous enough
+   that text doesn't tuck under the floating toolbar. */
+.verevoir-admin [data-rich-text-content] {
+  min-height: 3rem;
+  padding: 0.25rem 0;
+  outline: none;
+}
+
+.verevoir-admin [data-rich-text-content]:empty::before {
+  content: attr(aria-label);
+  color: var(--admin-text-muted);
+  font-style: italic;
+  pointer-events: none;
+}
+
+/* --- Link field ----
+   Two visual modes:
+   - Resolved internal page: a chip showing the type label + title
+     with a clear button (×).
+   - Picking: input + type filter + Browse button, with a dropdown
+     beneath as you type. */
+
+.verevoir-admin [data-link-field] {
+  position: relative;
+}
+
+.verevoir-admin [data-link-edit] {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: 100%;
+}
+
+.verevoir-admin [data-link-input] {
+  flex: 1;
+  min-width: 0;
+}
+
+.verevoir-admin [data-link-type-filter] {
+  flex-shrink: 0;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.verevoir-admin [data-link-browse] {
+  flex-shrink: 0;
+  padding: 0.25rem 0.625rem;
+  background: transparent;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+}
+
+.verevoir-admin [data-link-browse]:hover,
+.verevoir-admin [data-link-clear]:hover {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  border-color: var(--admin-border-strong);
+}
+
+/* Resolved chip — same visual shape as the section-list row. */
+.verevoir-admin [data-link-resolved] {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.verevoir-admin [data-link-resolved-content] {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  line-height: 1.25;
+}
+
+.verevoir-admin [data-link-type] {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--admin-text-muted);
+}
+
+.verevoir-admin [data-link-resolved] [data-link-title] {
+  font-weight: 500;
+  color: var(--admin-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.verevoir-admin [data-link-clear] {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1;
+  color: var(--admin-text-muted);
+}
+
+/* --- Browse dropdown ---- */
+
+.verevoir-admin [data-link-dropdown] {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  max-height: 18rem;
+  background: var(--admin-dialog-bg, var(--admin-surface));
+  border: 1px solid var(--admin-border-strong);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow-lg);
+  overflow: hidden;
+}
+
+.verevoir-admin [data-link-dropdown-controls] {
+  display: flex;
+  gap: 0.375rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--admin-border);
+  background: var(--admin-bg);
+  flex-shrink: 0;
+}
+
+.verevoir-admin [data-link-dropdown-search] {
+  flex: 1;
+  min-width: 0;
+  padding: 0.25rem 0.5rem;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  font: inherit;
+  font-size: 0.8125rem;
+}
+
+.verevoir-admin [data-link-dropdown-search]:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+}
+
+.verevoir-admin [data-link-dropdown-results] {
+  overflow-y: auto;
+  padding: 0.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.verevoir-admin [data-link-dropdown-result] {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  column-gap: 0.625rem;
+  padding: 0.375rem 0.5rem;
+  background: transparent;
+  border: 0;
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  color: var(--admin-text);
+}
+
+.verevoir-admin [data-link-dropdown-result]:hover {
+  background: var(--admin-bg);
+}
+
+.verevoir-admin [data-link-dropdown-type] {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--admin-text-muted);
+}
+
+.verevoir-admin [data-link-dropdown-title] {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.verevoir-admin [data-link-dropdown-empty] {
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--admin-text-muted);
+  font-style: italic;
+}
+
+/* --- Array list editor (TableArrayField → list + modal) ----
+   Same layout shape as the section list: drag handle on the left,
+   click target in the middle, stacked up/down on the right. Editing
+   happens in a modal opened by clicking the row. */
+
+.verevoir-admin [data-array-display='list'] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.verevoir-admin [data-list-array] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.verevoir-admin [data-list-array-empty] {
+  padding: 1rem;
+  text-align: center;
+  color: var(--admin-text-muted);
+  font-style: italic;
+  font-size: 0.875rem;
+  border: 1px dashed var(--admin-border);
+  border-radius: var(--admin-radius);
+}
+
+.verevoir-admin [data-list-array-item] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+}
+
+.verevoir-admin [data-list-array-item][data-list-array-dragging='true'] {
+  opacity: 0.4;
+}
+
+.verevoir-admin [data-list-array-item][data-list-array-drop-target='true'] {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: -2px;
+}
+
+.verevoir-admin [data-list-array-grip] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  flex-shrink: 0;
+  cursor: grab;
+  color: var(--admin-text-muted);
+  opacity: 0.6;
+  transition: opacity 120ms;
+}
+
+.verevoir-admin [data-list-array-grip]:hover {
+  opacity: 1;
+}
+
+.verevoir-admin [data-list-array-grip]:active {
+  cursor: grabbing;
+}
+
+.verevoir-admin [data-list-array-row] {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.125rem;
+  padding: 0.25rem 0.375rem;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  min-width: 0;
+  /* Critical — without overflow:hidden the inner spans get to push
+     the row wider than its flex slot, shoving the up/down controls
+     off-screen. Combined with min-width:0, the row stays inside the
+     parent's flex space and the spans ellipsis. */
+  overflow: hidden;
+}
+
+.verevoir-admin [data-list-array-row]:hover {
+  background: var(--admin-bg);
+  border-radius: var(--admin-radius);
+}
+
+.verevoir-admin [data-list-array-primary],
+.verevoir-admin [data-list-array-secondary] {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.verevoir-admin [data-list-array-primary] {
+  font-weight: 500;
+  color: var(--admin-text);
+}
+
+.verevoir-admin [data-list-array-secondary] {
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+}
+
+/* Stacked move-up/down — same shape as the section list. */
+.verevoir-admin [data-list-array-controls] {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  overflow: hidden;
+}
+
+.verevoir-admin [data-list-array-controls] button {
+  width: 1.5rem;
+  height: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: var(--admin-text-muted);
+  padding: 0;
+}
+
+.verevoir-admin [data-list-array-controls] button + button {
+  border-top: 1px solid var(--admin-border);
+}
+
+.verevoir-admin [data-list-array-controls] button:hover:not(:disabled) {
+  background: var(--admin-bg);
+  color: var(--admin-text);
+}
+
+.verevoir-admin [data-list-array-controls] button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.verevoir-admin [data-list-array-add] {
+  align-self: flex-start;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font: inherit;
+  background: var(--admin-bg);
+  border: 1px dashed var(--admin-border);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  color: var(--admin-text-muted);
+}
+
+.verevoir-admin [data-list-array-add]:hover {
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  border-style: solid;
+}
+
+/* --- List item edit dialog ---- */
+
+/* Dialog has its own background var so themes can opt for an opaque
+   panel even when the rest of the surface stack is translucent
+   (glass) — a translucent modal is hard to read and doesn't visually
+   separate from the page. Defaults to `--admin-surface` so flat
+   themes don't need to override. */
+.verevoir-admin [data-list-array-dialog] {
+  padding: 0;
+  border: 1px solid var(--admin-border-strong);
+  border-radius: var(--admin-radius-lg);
+  background: var(--admin-dialog-bg, var(--admin-surface));
+  box-shadow: var(--admin-shadow-lg);
+  color: var(--admin-text);
+  max-width: 32rem;
+  width: 90vw;
+}
+
+.verevoir-admin [data-list-array-dialog]::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.verevoir-admin [data-list-array-dialog-form] {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.verevoir-admin [data-list-array-dialog-fields] {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.verevoir-admin [data-list-array-dialog-actions] {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--admin-border);
+  background: var(--admin-bg);
+}
+
+.verevoir-admin [data-list-array-dialog-delete] {
+  padding: 0.375rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--admin-text-muted);
+}
+
+.verevoir-admin [data-list-array-dialog-delete]:hover {
+  color: var(--admin-error);
+  border-color: var(--admin-error);
+}
+
+.verevoir-admin [data-list-array-dialog-done] {
+  padding: 0.375rem 1rem;
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+  border: 0;
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .verevoir-admin [data-document-editor] input[type='checkbox'] {
   width: auto;
-  margin-right: 0.5rem;
+  margin: 0;
+  accent-color: var(--admin-accent);
 }
 
-/* Field hints from @verevoir/editor */
-.verevoir-admin [data-document-editor] [data-field-hint],
-.verevoir-admin [data-document-editor] .verevoir-field-hint {
-  margin: 0.25rem 0 0.875rem;
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  color: var(--admin-text-muted);
-}
-
-/* --- Two-pane editor with preview ------------------------------------- */
-
-.verevoir-admin [data-document-editor-with-preview] {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-}
-
-.verevoir-admin [data-document-editor-pane] {
-  flex: 0 0 var(--admin-side-pane-width);
-  overflow-y: auto;
-  padding: 1.5rem;
-  border-right: 1px solid var(--admin-border);
-  background: var(--admin-bg);
-}
-
-.verevoir-admin [data-document-editor-pane] [data-document-editor] {
-  border: none;
-  padding: 0;
-  box-shadow: none;
-  background: transparent;
-}
-
-.verevoir-admin [data-document-editor-preview-pane] {
-  flex: 1;
-  min-width: 0;
-  background: var(--admin-bg);
-  display: flex;
-  flex-direction: column;
-}
-
-.verevoir-admin [data-document-editor-with-preview] [data-preview-frame] {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
+/* --- Preview frame (rendered by @verevoir/editor PreviewFrame) ------- */
 
 .verevoir-admin [data-preview-bar] {
   display: flex;
@@ -492,12 +1570,12 @@
   background: white;
 }
 
-/* On narrow screens, stack the panes */
+/* On narrow screens, stack the editor's two columns */
 @media (max-width: 1024px) {
-  .verevoir-admin [data-document-editor-with-preview] {
+  .verevoir-admin [data-document-editor-tab-body] {
     flex-direction: column;
   }
-  .verevoir-admin [data-document-editor-pane] {
+  .verevoir-admin [data-document-editor-col][data-col='left'] {
     flex: none;
     border-right: none;
     border-bottom: 1px solid var(--admin-border);
@@ -577,9 +1655,10 @@
 
 .verevoir-admin [data-sections-item-toggle] {
   flex: 1;
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 0.875rem;
   background: none;
   border: none;
   padding: 0.25rem 0;
@@ -594,13 +1673,26 @@
   cursor: default;
 }
 
+.verevoir-admin [data-sections-item-icon] {
+  width: 2.5rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  display: block;
+}
+
+.verevoir-admin [data-sections-item-text] {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
 .verevoir-admin [data-sections-item-type] {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--admin-text-muted);
-  flex-shrink: 0;
 }
 
 .verevoir-admin [data-sections-item-heading] {
@@ -612,26 +1704,36 @@
   min-width: 0;
 }
 
+/* Stacked move-up / move-down — single button-width column, two
+   half-height buttons sharing a border. Keyboard path stays for
+   reordering; the grip on the left handles drag. */
 .verevoir-admin [data-sections-item-controls] {
   display: flex;
-  gap: 0.25rem;
+  flex-direction: column;
   flex-shrink: 0;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  overflow: hidden;
 }
 
 .verevoir-admin [data-sections-item-controls] button {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.5rem;
+  height: 0.875rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: 1px solid var(--admin-border);
-  border-radius: var(--admin-radius);
+  border: 0;
   cursor: pointer;
   font: inherit;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  line-height: 1;
   color: var(--admin-text-muted);
   padding: 0;
+}
+
+.verevoir-admin [data-sections-item-controls] button + button {
+  border-top: 1px solid var(--admin-border);
 }
 
 .verevoir-admin [data-sections-item-controls] button:hover:not(:disabled) {
@@ -644,14 +1746,67 @@
   cursor: not-allowed;
 }
 
-.verevoir-admin [data-sections-item-delete]:hover:not(:disabled) {
-  color: var(--admin-error) !important;
-  border-color: var(--admin-error) !important;
+/* Drag-handle grip on the left of each section row. */
+.verevoir-admin [data-sections-item-grip] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  flex-shrink: 0;
+  cursor: grab;
+  color: var(--admin-text-muted);
+  opacity: 0.6;
+  transition: opacity 120ms;
+}
+
+.verevoir-admin [data-sections-item-grip]:hover {
+  opacity: 1;
+}
+
+.verevoir-admin [data-sections-item-grip]:active {
+  cursor: grabbing;
+}
+
+/* Drag visual feedback: dim the source row, accent the target. */
+.verevoir-admin [data-sections-item][data-sections-item-dragging='true'] {
+  opacity: 0.4;
+}
+
+.verevoir-admin [data-sections-item][data-sections-item-drop-target='true'] {
+  outline: 2px solid var(--admin-accent);
+  outline-offset: -2px;
 }
 
 .verevoir-admin [data-sections-item-body] {
   padding: 1rem 1.25rem 1.25rem;
   border-top: 1px solid var(--admin-border);
+}
+
+/* Delete button moved into the opened section's body — out of the
+   row controls, so the row stays compact and accidental deletes are
+   one extra click away. */
+.verevoir-admin [data-sections-item-body-actions] {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--admin-border);
+}
+
+.verevoir-admin [data-sections-item-delete] {
+  padding: 0.375rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--admin-text-muted);
+}
+
+.verevoir-admin [data-sections-item-delete]:hover {
+  color: var(--admin-error);
+  border-color: var(--admin-error);
 }
 
 .verevoir-admin [data-sections-add-button] {
@@ -689,18 +1844,18 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
-  gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
 }
 
 .verevoir-admin [data-sections-picker-list] button {
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem;
-  padding: 0.75rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 0.875rem;
+  padding: 0.625rem 0.75rem;
   background: var(--admin-surface);
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-radius);
@@ -714,14 +1869,14 @@
   background: var(--admin-bg);
 }
 
+.verevoir-admin [data-sections-picker-icon] {
+  width: 2.5rem;
+  height: 1.25rem;
+  display: block;
+}
+
 .verevoir-admin [data-sections-picker-label] {
   font-weight: 600;
   font-size: 0.875rem;
   color: var(--admin-text);
-}
-
-.verevoir-admin [data-sections-picker-type] {
-  font-size: 0.75rem;
-  color: var(--admin-text-muted);
-  font-family: var(--admin-font-mono);
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BlockEditor } from '@verevoir/editor';
+import { GripIcon } from './GripIcon.js';
 import type { SectionEntry } from '../types.js';
 
 interface Section {
@@ -14,6 +15,13 @@ export interface SectionsEditorProps {
   value: Section[];
   /** Called when the user edits, adds, removes, or reorders a section */
   onChange: (next: Section[]) => void;
+  /**
+   * Called after a STRUCTURAL change — add, remove, or reorder. Edit
+   * of a field within a section does NOT trigger this. Consumers
+   * typically wire it to auto-save, since those operations feel
+   * committed; text edits stay manual-save.
+   */
+  onStructuralChange?: () => void;
 }
 
 /**
@@ -34,9 +42,18 @@ export function SectionsEditor({
   sections: registry,
   value,
   onChange,
+  onStructuralChange,
 }: SectionsEditorProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  /** Index of the section currently being dragged, or null if none. */
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  /**
+   * Index the dragged section would land at if dropped now. Tracked
+   * separately so the row's drop indicator (CSS) can light up
+   * regardless of whether dragenter fires before dragleave.
+   */
+  const [dropTarget, setDropTarget] = useState<number | null>(null);
 
   const getEntry = (type: string): SectionEntry | undefined =>
     registry.find((d) => d.type === type);
@@ -54,6 +71,20 @@ export function SectionsEditor({
     next.splice(to, 0, moved);
     onChange(next);
     if (openIndex === from) setOpenIndex(to);
+    onStructuralChange?.();
+  };
+
+  /**
+   * Drop the dragged section at `targetIndex`. The target is the
+   * destination POSITION in the list — if you drag from 1 to 3, the
+   * dragged item ends up at index 3 in the new array. We adjust for
+   * the fact that splicing the dragged item out shifts indexes that
+   * were originally below it.
+   */
+  const dropAt = (targetIndex: number) => {
+    if (dragIndex === null || dragIndex === targetIndex) return;
+    const adjusted = targetIndex > dragIndex ? targetIndex - 1 : targetIndex;
+    moveSection(dragIndex, adjusted);
   };
 
   const removeSection = (index: number) => {
@@ -62,6 +93,7 @@ export function SectionsEditor({
     if (openIndex === index) setOpenIndex(null);
     else if (openIndex !== null && openIndex > index)
       setOpenIndex(openIndex - 1);
+    onStructuralChange?.();
   };
 
   const addSection = (type: string) => {
@@ -88,6 +120,7 @@ export function SectionsEditor({
     onChange([...value, initial]);
     setOpenIndex(value.length);
     setPickerOpen(false);
+    onStructuralChange?.();
   };
 
   return (
@@ -118,18 +151,77 @@ export function SectionsEditor({
                 data-sections-item
                 data-sections-item-open={isOpen ? 'true' : undefined}
                 data-sections-item-unknown={isUnknown ? 'true' : undefined}
+                data-sections-item-dragging={
+                  dragIndex === index ? 'true' : undefined
+                }
+                data-sections-item-drop-target={
+                  dropTarget === index && dragIndex !== index
+                    ? 'true'
+                    : undefined
+                }
+                onDragOver={(e) => {
+                  if (dragIndex === null) return;
+                  e.preventDefault();
+                  // Allow dropping; tell the browser this is a "move".
+                  e.dataTransfer.dropEffect = 'move';
+                  if (dropTarget !== index) setDropTarget(index);
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  dropAt(index);
+                  setDragIndex(null);
+                  setDropTarget(null);
+                }}
+                onDragLeave={(e) => {
+                  // Only clear the drop target when we leave the row
+                  // itself (not when we move between its children).
+                  if (e.currentTarget.contains(e.relatedTarget as Node | null))
+                    return;
+                  if (dropTarget === index) setDropTarget(null);
+                }}
               >
                 <header data-sections-item-header>
+                  <span
+                    data-sections-item-grip
+                    aria-label="Drag to reorder"
+                    title="Drag to reorder"
+                    role="button"
+                    tabIndex={-1}
+                    draggable
+                    onDragStart={(e) => {
+                      setDragIndex(index);
+                      e.dataTransfer.effectAllowed = 'move';
+                      // Setting any data is required for Firefox to
+                      // actually start a drag operation.
+                      e.dataTransfer.setData('text/plain', String(index));
+                    }}
+                    onDragEnd={() => {
+                      setDragIndex(null);
+                      setDropTarget(null);
+                    }}
+                  >
+                    <GripIcon />
+                  </span>
                   <button
                     type="button"
                     data-sections-item-toggle
                     onClick={() => setOpenIndex(isOpen ? null : index)}
                     disabled={isUnknown}
                   >
-                    <span data-sections-item-type>
-                      {def?.label ?? `Unknown: ${section._type}`}
+                    {def?.iconSrc && (
+                      <img
+                        data-sections-item-icon
+                        src={def.iconSrc}
+                        alt=""
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span data-sections-item-text>
+                      <span data-sections-item-type>
+                        {def?.label ?? `Unknown: ${section._type}`}
+                      </span>
+                      <span data-sections-item-heading>{heading}</span>
                     </span>
-                    <span data-sections-item-heading>{heading}</span>
                   </button>
                   <div data-sections-item-controls>
                     <button
@@ -150,23 +242,6 @@ export function SectionsEditor({
                     >
                       ↓
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (
-                          confirm(
-                            `Delete this ${def?.label ?? section._type} section?`,
-                          )
-                        ) {
-                          removeSection(index);
-                        }
-                      }}
-                      aria-label="Delete section"
-                      title="Delete section"
-                      data-sections-item-delete
-                    >
-                      ×
-                    </button>
                   </div>
                 </header>
 
@@ -177,6 +252,23 @@ export function SectionsEditor({
                       value={section}
                       onChange={(updated) => updateSection(index, updated)}
                     />
+                    <div data-sections-item-body-actions>
+                      <button
+                        type="button"
+                        data-sections-item-delete
+                        onClick={() => {
+                          if (
+                            confirm(
+                              `Delete this ${def?.label ?? section._type} section?`,
+                            )
+                          ) {
+                            removeSection(index);
+                          }
+                        }}
+                      >
+                        Delete this section
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -213,8 +305,15 @@ export function SectionsEditor({
               {registry.map((def) => (
                 <li key={def.type}>
                   <button type="button" onClick={() => addSection(def.type)}>
+                    {def.iconSrc && (
+                      <img
+                        data-sections-picker-icon
+                        src={def.iconSrc}
+                        alt=""
+                        aria-hidden="true"
+                      />
+                    )}
                     <span data-sections-picker-label>{def.label}</span>
-                    <span data-sections-picker-type>{def.type}</span>
                   </button>
                 </li>
               ))}
