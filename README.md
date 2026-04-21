@@ -1,94 +1,130 @@
 # @verevoir/admin
 
-Composable building blocks for a Verevoir-powered admin site. Mounts on top of [`@verevoir/storage`](https://www.npmjs.com/package/@verevoir/storage) and [`@verevoir/editor`](https://www.npmjs.com/package/@verevoir/editor) to give you a working admin in `npm install` minutes — with first-class slots for **page versioning**, **live preview**, and **user management**.
-
-## What's in the box
-
-- **`AdminShell`** — chrome (header, breadcrumbs, identity display, body container). Theming via CSS custom properties; selectors via data attributes — no class names you have to lock onto.
-- **`DocumentList`** — grouped lists of documents per block type, with edit links.
-- **`DocumentEditor`** — full editor: metadata form (`@verevoir/editor`'s `BlockEditor`), optional polymorphic sections, optional live preview iframe, save flow.
-- **`SectionsEditor`** — polymorphic array editor for page sections (heterogeneous arrays where each item has a different shape).
-- **`createSaveHandler`** — pure function. Validates the request, merges with the existing document, writes through your `StorageAdapter`. Framework-agnostic.
-- **`createAstroSaveRoute`** (`@verevoir/admin/astro`) — Astro adapter for the save handler.
-
-Plus first-class **slots** for features that aren't built into the toolkit but are reserved for the consumer to plug in:
-
-- **`versions`** — a `VersionContainer` component rendered above the editor. Use it to wire up Verevoir's page versioning workflow (draft / published / archived, new version, publish, unpublish). The toolkit reserves the slot but doesn't ship an implementation — versioning is opinionated and depends on your storage shape.
-- **`users`** — a `UsersContainer` component rendered as its own admin route. Use it to render user management on top of `@verevoir/access` + `@verevoir/accounts`.
-- **`preview`** — function returning the public URL for a document. The editor renders a live preview iframe pointing at it.
-
-## Quick start
+Composable admin-UI building blocks. Mounts on top of [`@verevoir/storage`](https://www.npmjs.com/package/@verevoir/storage) and [`@verevoir/editor`](https://www.npmjs.com/package/@verevoir/editor) to give you a working content admin — shell, sidebar, document list, document editor, sections editor, tag scheduler — with zero opinion about routing, auth, or deployment target.
 
 ```bash
 npm install @verevoir/admin @verevoir/editor @verevoir/schema @verevoir/storage
 ```
 
-```ts
-// src/storage.ts
-import { MemoryAdapter } from '@verevoir/storage';
-export const storage = new MemoryAdapter();
+## What's in the box
 
-// src/schema/index.ts
-import { defineBlock, text } from '@verevoir/schema';
-export const page = defineBlock({
-  name: 'page',
-  fields: { title: text('Title'), slug: text('Slug') },
-});
+### Layout and shell
 
-// src/admin/config.ts — used by every admin route
-import { storage } from '../storage';
-import { page } from '../schema';
+- **`AdminLayout`** — persistent React tree that wraps every admin page. Owns the sidebar, context providers, and a slot for page content. Lets consumers compose SPA-style navigation with the sidebar mounted once.
+- **`AdminShell`** — chrome (header, breadcrumbs, identity display, body container). Used by `AdminLayout` or directly if you want a simpler shell.
+- **`AdminSidebar`** — categorised navigation of block types, with an inline filter, collapse state persisted via preferences context, and singleton vs collection handling.
 
-export const adminConfig = {
-  storage,
-  blocks: {
-    page: {
-      block: page,
-      label: 'Pages',
-      preview: (data) => '/' + (data.slug as string),
-    },
-  },
-};
-```
+### Context
 
-### Astro example
+- **`AdminProvider`** — shares groups, base path, current path, and filter text across every admin component below it.
+- **`AdminPreferencesProvider`** — persists per-user admin preferences (sidebar collapsed, expanded type IDs) via localStorage.
+- **`useAdminGroups`**, **`useAdminBasePath`**, **`useAdminCurrentPath`**, **`useAdminFilter`**, **`useFilteredGroups`**, **`useSidebarOpen`**, **`useExpandedTypes`** — typed hooks for everything the providers expose.
+
+### Document UI
+
+- **`DocumentList`** — filtered, grouped listing of documents per block type with edit links.
+- **`DocumentEditor`** — the full editor: metadata form (via `@verevoir/editor`'s `BlockEditor`), polymorphic sections, optional live preview iframe, save flow, auto-save for structural changes.
+- **`SectionsEditor`** — polymorphic page-section editor with drag-and-drop reordering and stacked move-up / move-down controls.
+
+### Tag scheduling
+
+- **`TagList`** — listing of every tag in use across the registered block types with counts.
+- **`TagScheduler`** — bulk-edit form: set `publishFrom` / `publishTo` across every doc carrying a tag. Denied docs (where `canEdit` returns false) are shown greyed out with a lock indicator.
+
+### Save handler
+
+- **`createSaveHandler`** — framework-agnostic function. Validates the request, merges with the existing document, writes through your `StorageAdapter`.
+- **`createAstroSaveRoute`** (`@verevoir/admin/astro`) — thin Astro wrapper around the save handler.
+
+### Server helpers (`@verevoir/admin/server`)
+
+- **`loadAdminGroups({ storage, blocks })`** — serialisable view model for the sidebar: one group per block type with its docs. Pass the result into `AdminLayout`'s `groups` prop.
+- **`loadTagsSummary({ storage, blocks })`** — every tag in use across registered block types with counts + which types it spans.
+- **`loadTagDetail({ storage, blocks, tag })`** — every doc carrying the given tag, with title + publish window.
+
+Import only what you need; the server subpath stays out of the client bundle.
+
+## Quick start (Astro)
 
 ```astro
 ---
 // src/pages/admin.astro
-import { storage } from '@/storage';
-import { page } from '@/schema';
-import { AdminShell, DocumentList } from '@verevoir/admin';
+import { loadAdminGroups } from '@verevoir/admin/server';
 import '@verevoir/admin/styles/admin.css';
+import { storage } from '@/storage';
+import { blocks } from '@/schema/registry';
+import { AdminHomeIsland } from '@/admin/AdminHomeIsland';
 
 export const prerender = false;
-
-const docs = await storage.list('page');
+const groups = await loadAdminGroups({ storage, blocks });
 ---
 
-<AdminShell title="My Site" client:only="react">
-  <DocumentList
-    groups={[{ blockType: 'page', entry: { block: page, label: 'Pages' }, documents: docs }]}
-  />
-</AdminShell>
+<html lang="en">
+  <body>
+    <AdminHomeIsland client:only="react" groups={groups} basePath="/admin" currentPath={Astro.url.pathname} />
+  </body>
+</html>
+```
+
+```tsx
+// src/admin/AdminHomeIsland.tsx
+import { AdminLayout, DocumentList } from '@verevoir/admin';
+import type { AdminGroup } from '@verevoir/admin';
+
+export function AdminHomeIsland({ groups, basePath, currentPath }) {
+  return (
+    <AdminLayout
+      groups={groups}
+      basePath={basePath}
+      currentPath={currentPath}
+      shell={{ title: 'My Admin' }}
+    >
+      <DocumentList />
+    </AdminLayout>
+  );
+}
 ```
 
 ```ts
 // src/pages/api/admin/save.ts
 import { createAstroSaveRoute } from '@verevoir/admin/astro';
 import { storage } from '@/storage';
-import { page } from '@/schema';
+import { blocks } from '@/schema/registry';
 
 export const prerender = false;
-export const POST = createAstroSaveRoute({
-  storage,
-  blocks: { page: { block: page } },
-});
+export const POST = createAstroSaveRoute({ storage, blocks });
 ```
+
+A full working consumer: [Verevoir starter](https://github.com/verevoir/astro-sanity-starter).
+
+## Block registry
+
+`AdminLayout` expects a registry of block types in a specific shape:
+
+```ts
+import type { BlockRegistry } from '@verevoir/admin';
+
+export const blocks: BlockRegistry = {
+  page: {
+    block: pageBlockDefinition,
+    label: 'Pages',
+    category: 'Content',
+    preview: (data) => `/${data.slug ?? ''}`,
+  },
+  siteConfig: {
+    block: siteConfigBlockDefinition,
+    label: 'Site config',
+    category: 'Configuration',
+    singleton: true,
+  },
+};
+```
+
+`category` groups block types in the sidebar (preserves order-of-first-appearance). `preview` returns a public URL; when set, the editor shows a side-by-side preview iframe. `singleton: true` for single-instance block types like site config.
 
 ## Theming
 
-`@verevoir/admin` is fully themable via CSS custom properties. Override any of these on `:root` or the `.verevoir-admin` selector:
+Fully themable via CSS custom properties. Override any of these on `:root` or the `.verevoir-admin` selector:
 
 | Variable                | Default                  | What it controls     |
 | ----------------------- | ------------------------ | -------------------- |
@@ -101,25 +137,25 @@ export const POST = createAstroSaveRoute({
 | `--admin-font`          | `Mulish, system-ui, ...` | Font family          |
 | `--admin-content-width` | `64rem`                  | Max content width    |
 
-The full list is in [`src/styles/admin.css`](src/styles/admin.css).
+Full list in [`src/styles/admin.css`](src/styles/admin.css). Every element exposes `data-*` attributes for granular CSS targeting — no class names to lock onto.
 
-All elements expose `data-*` attributes for granular CSS targeting — no class names that consumers must learn or lock onto.
+The starter ships an alternative dark "glass" theme; see its `src/styles/admin-theme.css` for what a substantial override looks like.
 
-## Routing
+## Design posture
 
-The toolkit is **routing-agnostic**. Each admin route in your host framework (Astro, Next.js, Remix, Vite + React Router) renders an `AdminShell` with the appropriate component inside. There's no internal client-side router.
+- **Routing-agnostic.** Each admin route in your host framework (Astro, Next.js, Remix, Vite + React Router) renders an `AdminLayout` with the appropriate content. The toolkit doesn't ship its own router.
+- **Auth-agnostic.** Configure auth at the route level (middleware) and pass an `identity` prop to `AdminShell`. Components like `TagScheduler` accept `canEdit` callbacks so the host owns the policy check. `@verevoir/access` pairs naturally but isn't required.
+- **Storage-agnostic.** Any `StorageAdapter` works. Components take data as props and call consumer-provided save handlers; the toolkit never touches storage directly.
+- **Composable.** You can use `AdminShell` + `DocumentList` alone for a minimal admin, or bolt in `DocumentEditor` + `SectionsEditor` + `TagScheduler` as your content model grows.
 
-The conventional URL structure:
+## See it in a real app
 
-- `/admin` — `<DocumentList>` showing all block types
-- `/admin/[blockType]/[id]` — `<DocumentEditor>` for one document
-- `/api/admin/save` — POST endpoint that calls `createSaveHandler`
+The [Verevoir starter](https://github.com/verevoir/astro-sanity-starter) wires every component from this package into a working Astro admin with auth, tag scheduling, and a glass theme.
 
-But you're free to use any structure you want — the components don't hardcode URLs.
+## Docs
 
-## Auth
-
-The toolkit is **auth-agnostic**. You configure auth at the route level (Astro middleware, Next middleware, etc.) and pass an `identity` prop to `AdminShell` so it can show the user in the header. See `@verevoir/access` for ready-made auth adapters.
+- [Getting started](https://verevoir.io/docs/getting-started)
+- [Integration guide](https://verevoir.io/docs/integration)
 
 ## License
 
