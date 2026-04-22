@@ -12,7 +12,11 @@ export { DocumentEditor } from './components/DocumentEditor.js';
 export type {
   DocumentEditorProps,
   LinkablePage,
+  VersioningProps,
 } from './components/DocumentEditor.js';
+
+export { VersionsPanel } from './components/VersionsPanel.js';
+export type { VersionsPanelProps } from './components/VersionsPanel.js';
 
 export { DocumentList } from './components/DocumentList.js';
 export type { DocumentListProps } from './components/DocumentList.js';

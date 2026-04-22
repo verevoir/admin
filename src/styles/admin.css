@@ -765,6 +765,185 @@
   color: var(--admin-error);
 }
 
+/* --- Versioning toolbar buttons + status badge ---- */
+
+/*
+ * The Publish button looks like Save (primary action). Unpublish
+ * and New Version are secondary — outline style so the visual
+ * weight of "Save" / "Publish" stays the dominant action.
+ */
+.verevoir-admin [data-document-editor-publish] {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  border: none;
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+}
+
+.verevoir-admin [data-document-editor-publish]:hover:not(:disabled) {
+  background: var(--admin-accent-strong);
+}
+
+.verevoir-admin [data-document-editor-publish]:disabled,
+.verevoir-admin [data-document-editor-unpublish]:disabled,
+.verevoir-admin [data-document-editor-new-version]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.verevoir-admin [data-document-editor-unpublish],
+.verevoir-admin [data-document-editor-new-version] {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  border: 1px solid var(--admin-border-strong);
+  border-radius: var(--admin-radius);
+  cursor: pointer;
+  background: transparent;
+  color: var(--admin-text);
+}
+
+.verevoir-admin [data-document-editor-unpublish]:hover:not(:disabled),
+.verevoir-admin [data-document-editor-new-version]:hover:not(:disabled) {
+  background: var(--admin-bg);
+  border-color: var(--admin-text-muted);
+}
+
+/*
+ * Status badge — used both inline in the toolbar (with `data-
+ * version-badge-inline`) and per-row in the version list. The
+ * `data-status` value drives the colour: published is success,
+ * draft is neutral / accent, archived is muted.
+ */
+.verevoir-admin [data-version-badge] {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text-muted);
+}
+
+.verevoir-admin [data-version-badge][data-status='published'] {
+  background: color-mix(in srgb, var(--admin-success) 20%, transparent);
+  border-color: var(--admin-success);
+  color: var(--admin-success);
+}
+
+.verevoir-admin [data-version-badge][data-status='draft'] {
+  background: color-mix(in srgb, var(--admin-accent) 20%, transparent);
+  border-color: var(--admin-accent);
+  color: var(--admin-accent);
+}
+
+.verevoir-admin [data-version-badge][data-status='archived'] {
+  opacity: 0.55;
+}
+
+.verevoir-admin [data-version-badge-inline] {
+  margin-right: auto;
+}
+
+/* --- Versions panel (in the Versions tab) ---- */
+
+.verevoir-admin [data-versions-panel] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.verevoir-admin [data-versions-empty] {
+  margin: 0;
+  padding: 1rem;
+  font-size: 0.9375rem;
+  color: var(--admin-text-muted);
+  background: var(--admin-bg);
+  border-radius: var(--admin-radius);
+}
+
+.verevoir-admin [data-versions-list] {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.verevoir-admin [data-versions-item] {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  background: var(--admin-surface);
+}
+
+.verevoir-admin [data-versions-item][data-current='true'] {
+  border-color: var(--admin-accent);
+  background: color-mix(in srgb, var(--admin-accent) 8%, var(--admin-surface));
+}
+
+.verevoir-admin [data-versions-meta] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+}
+
+.verevoir-admin [data-versions-version-number] {
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.verevoir-admin [data-versions-date] {
+  color: var(--admin-text-muted);
+  font-size: 0.8125rem;
+}
+
+.verevoir-admin [data-versions-actions] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verevoir-admin [data-versions-current-label] {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--admin-text-muted);
+}
+
+.verevoir-admin [data-versions-link] {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  border: none;
+  background: transparent;
+  color: var(--admin-accent-strong);
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: var(--admin-radius);
+}
+
+.verevoir-admin [data-versions-link]:hover {
+  background: var(--admin-bg);
+}
+
 /* --- Field shell (fieldset+legend pattern from @verevoir/editor) ----- */
 
 /* The compact label sits in the top-left of the fieldset border, the

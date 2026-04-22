@@ -1,6 +1,6 @@
 {
   "name": "@verevoir/admin",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "license": "MIT",
   "description": "Composable building blocks for a Verevoir-powered admin site — shell, editor, list, with first-class slots for versioning, preview, and user management.",
   "homepage": "https://verevoir.io",
